@@ -1,29 +1,40 @@
 {
   "expo": {
-    "name": "VideGrenierKamer",
-    "slug": "VideGrenierKamer",
+    "name": "Vidé-Grenier Kamer",
+    "slug": "vide-grenier-kamer",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./src/assets/images/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./src/assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FF6B35"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.videgrenier.kamer",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./src/assets/images/adaptive-icon.png",
+        "backgroundColor": "#FF6B35"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.videgrenier.kamer",
+      "versionCode": 1
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./src/assets/images/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://192.168.1.100:8000/mobile/api",
+      "eas": {
+        "projectId": "your-project-id"
+      }
     }
   }
 }
