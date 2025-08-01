@@ -1,14 +1,23 @@
+// src/navigation/AuthNavigator.tsx
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { LoginScreen } from '../screens/auth/LoginScreen';
-import { RegisterScreen } from '../screens/auth/RegisterScreen';
-import { ForgotPasswordScreen } from '../screens/auth/ForgotPasswordScreen';
-import { PhoneVerificationScreen } from '../screens/auth/PhoneVerificationScreen';
-import { TwoFactorScreen } from '../screens/auth/TwoFactorScreen';
+import LoginScreen from '@/screens/auth/LoginScreen';
+import RegisterScreen from '@/screens/auth/RegisterScreen';
+import ForgotPasswordScreen from '@/screens/auth/ForgotPasswordScreen';
+import TwoFactorScreen from '@/screens/auth/TwoFactorScreen';
+import PhoneVerificationScreen from '@/screens/auth/PhoneVerificationScreen';
 
-const Stack = createStackNavigator();
+export type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
+  TwoFactorVerification: { email: string };
+  PhoneVerification: { userId: string; phone: string };
+};
 
-export const AuthNavigator: React.FC = () => {
+const Stack = createStackNavigator<AuthStackParamList>();
+
+const AuthNavigator: React.FC = () => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -18,8 +27,10 @@ export const AuthNavigator: React.FC = () => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="TwoFactorVerification" component={TwoFactorScreen} />
       <Stack.Screen name="PhoneVerification" component={PhoneVerificationScreen} />
-      <Stack.Screen name="TwoFactor" component={TwoFactorScreen} />
     </Stack.Navigator>
   );
 };
+
+export default AuthNavigator;
