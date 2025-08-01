@@ -13,7 +13,7 @@ import AdminNavigator from './AdminNavigator';
 import AuthNavigator from './AuthNavigator';
 
 // Import screens
-import SplashScreen from '@/screens/SplashScreen';
+import SplashScreen from '@/screens/splash/SplashScreen';
 import TermsConditionsScreen from '@/screens/auth/TermsConditionsScreen';
 
 export type RootStackParamList = {

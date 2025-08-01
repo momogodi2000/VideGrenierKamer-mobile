@@ -6,7 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes } from '@/theme';
 
 // Import screens
-import VisitorLandingScreen from '@/screens/visitor/VisitorLandingScreen';
+import VisitorLandingScreen from '@/screens/onboarding/VisitorLandingScreen';
 import ProductListScreen from '@/screens/visitor/ProductListScreen';
 import ProductDetailScreen from '@/screens/visitor/ProductDetailScreen';
 import CartScreen from '@/screens/visitor/CartScreen';
