@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors, fonts, fontSizes, spacing, borderRadius } from '@/theme';
-import AfricanButton from '@/components/common/AfricanButton';
+import { AfricanButton } from '@/components/common/AfricanButton';
 import HeaderWithDrawer from '@/components/common/HeaderWithDrawer';
 
 const { width } = Dimensions.get('window');

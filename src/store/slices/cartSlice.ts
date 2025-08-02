@@ -1,4 +1,50 @@
-// src/store/slices/cartSlice.ts
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+interface CartItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  price: number;
+}
+
+interface CartState {
+  items: CartItem[];
+  total: number;
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: CartState = {
+  items: [],
+  total: 0,
+  loading: false,
+  error: null,
+};
+
+const cartSlice = createSlice({
+  name: 'cart',
+  initialState,
+  reducers: {
+    addToCart(state, action: PayloadAction<CartItem>) {
+      state.items.push(action.payload);
+      state.total += action.payload.price * action.payload.quantity;
+    },
+    removeFromCart(state, action: PayloadAction<string>) {
+      const index = state.items.findIndex(item => item.id === action.payload);
+      if (index !== -1) {
+        state.total -= state.items[index].price * state.items[index].quantity;
+        state.items.splice(index, 1);
+      }
+    },
+    clearCart(state) {
+      state.items = [];
+      state.total = 0;
+    },
+  },
+});
+
+export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
+export default cartSlice.reducer;// src/store/slices/cartSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface CartItem {

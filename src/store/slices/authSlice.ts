@@ -1,4 +1,4 @@
-// src/store/slices/authSlice.ts
+// ...existing code...
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authApi } from '@/services/api/auth';
 import secureStorage from '@/services/storage/secureStorage';
@@ -204,21 +204,20 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
-        
-        if (action.payload.requires2FA) {
+        const payload = action.payload as any;
+        if (payload && typeof payload === 'object' && 'requires2FA' in payload) {
           state.requires2FA = true;
-          state.tempEmail = action.payload.tempEmail || null;
-        } else {
+          state.tempEmail = payload.tempEmail || null;
+        } else if (payload && typeof payload === 'object' && 'user' in payload && 'tokens' in payload) {
           state.isAuthenticated = true;
-          state.user = action.payload.user!;
-          state.tokens = action.payload.tokens!;
+          state.user = payload.user;
+          state.tokens = payload.tokens;
         }
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
       // Verify 2FA
       .addCase(verify2FA.pending, (state) => {
         state.isLoading = true;
@@ -226,17 +225,19 @@ const authSlice = createSlice({
       })
       .addCase(verify2FA.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user!;
-        state.tokens = action.payload.tokens!;
-        state.requires2FA = false;
-        state.tempEmail = null;
+        const payload = action.payload as any;
+        if (payload && typeof payload === 'object' && 'user' in payload && 'tokens' in payload) {
+          state.isAuthenticated = true;
+          state.user = payload.user;
+          state.tokens = payload.tokens;
+          state.requires2FA = false;
+          state.tempEmail = null;
+        }
       })
       .addCase(verify2FA.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
       // Register
       .addCase(register.pending, (state) => {
         state.isLoading = true;
@@ -244,21 +245,20 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.isLoading = false;
-        
-        if (action.payload.requiresPhoneVerification) {
+        const payload = action.payload as any;
+        if (payload && typeof payload === 'object' && 'requiresPhoneVerification' in payload) {
           state.requiresPhoneVerification = true;
-          state.tempUserId = action.payload.tempUserId || null;
-        } else {
+          state.tempUserId = payload.tempUserId || null;
+        } else if (payload && typeof payload === 'object' && 'user' in payload && 'tokens' in payload) {
           state.isAuthenticated = true;
-          state.user = action.payload.user!;
-          state.tokens = action.payload.tokens!;
+          state.user = payload.user;
+          state.tokens = payload.tokens;
         }
       })
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
       // Verify Phone
       .addCase(verifyPhone.pending, (state) => {
         state.isLoading = true;
@@ -266,28 +266,30 @@ const authSlice = createSlice({
       })
       .addCase(verifyPhone.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user!;
-        state.tokens = action.payload.tokens!;
-        state.requiresPhoneVerification = false;
-        state.tempUserId = null;
+        const payload = action.payload as any;
+        if (payload && typeof payload === 'object' && 'user' in payload && 'tokens' in payload) {
+          state.isAuthenticated = true;
+          state.user = payload.user;
+          state.tokens = payload.tokens;
+          state.requiresPhoneVerification = false;
+          state.tempUserId = null;
+        }
       })
       .addCase(verifyPhone.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
       // Logout
       .addCase(logout.fulfilled, (state) => {
         return initialState;
       })
-      
       // Load stored auth
       .addCase(loadStoredAuth.fulfilled, (state, action) => {
-        if (action.payload) {
+        const payload = action.payload as any;
+        if (payload) {
           state.isAuthenticated = true;
-          state.user = action.payload.user;
-          state.tokens = action.payload.tokens;
+          state.user = payload.user;
+          state.tokens = payload.tokens;
         }
       });
   },
