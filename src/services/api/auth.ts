@@ -7,22 +7,23 @@ import {
   VerifyPhoneRequest,
   Verify2FARequest 
 } from '@/types/auth';
+import { API_ENDPOINTS } from '@/constants/api';
 
 export const authApi = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('/auth/login/', credentials);
+    return apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials);
   },
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('/auth/register/', userData);
+    return apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, userData);
   },
 
   async verifyPhone(data: VerifyPhoneRequest): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('/auth/verify_phone/', data);
+    return apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.VERIFY_PHONE, data);
   },
 
   async verify2FA(data: Verify2FARequest): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('/auth/verify_2fa/', data);
+    return apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.VERIFY_2FA, data);
   },
 
   async resendPhoneCode(userId: string): Promise<{ success: boolean; message: string }> {
@@ -34,22 +35,22 @@ export const authApi = {
   },
 
   async logout(): Promise<{ success: boolean }> {
-    return apiClient.post('/auth/logout/');
+    return apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
   },
 
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('/auth/refresh/', { 
+    return apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH, { 
       refresh_token: refreshToken 
     });
   },
 
   async googleOAuth(accessToken: string): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('/auth/google_oauth/', { 
+    return apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH.GOOGLE_OAUTH, { 
       access_token: accessToken 
     });
   },
 
   async setup2FA(enable: boolean): Promise<{ success: boolean; message: string }> {
-    return apiClient.post('/user/setup_2fa/', { enable_2fa: enable });
+    return apiClient.post(API_ENDPOINTS.USER.SETUP_2FA, { enable_2fa: enable });
   },
 };

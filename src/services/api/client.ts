@@ -2,6 +2,7 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import Constants from 'expo-constants';
 import secureStorage from '../storage/secureStorage';
+import { API_BASE_URL, API_HEADERS, API_TIMEOUT } from '@/constants/api';
 
 class ApiClient {
   private client: AxiosInstance;
@@ -10,12 +11,9 @@ class ApiClient {
 
   constructor() {
     this.client = axios.create({
-      baseURL: Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_BASE_URL,
-      timeout: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || '30000'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      baseURL: API_BASE_URL,
+      timeout: API_TIMEOUT,
+      headers: API_HEADERS,
     });
 
     this.setupInterceptors();

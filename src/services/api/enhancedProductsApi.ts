@@ -1,13 +1,14 @@
 // src/services/api/enhancedProductsApi.ts
 import enhancedApiClient from './enhancedClient';
 import { Product, ProductFilters, CreateProductRequest } from './products';
+import { API_ENDPOINTS } from '@/constants/api';
 
 export const enhancedProductsApi = {
   /**
    * Get products with caching
    */
   async getProducts(filters: ProductFilters = {}): Promise<{ results: Product[]; count: number }> {
-    const response = await enhancedApiClient.get('/products/', filters, {
+    const response = await enhancedApiClient.get(API_ENDPOINTS.PRODUCTS.LIST, filters, {
       useCache: true,
       cacheKey: `products_${JSON.stringify(filters)}`,
     });
@@ -18,7 +19,7 @@ export const enhancedProductsApi = {
    * Get product detail with caching
    */
   async getProduct(id: string): Promise<Product> {
-    const response = await enhancedApiClient.get(`/products/${id}/`, undefined, {
+    const response = await enhancedApiClient.get(API_ENDPOINTS.PRODUCTS.DETAIL(id), undefined, {
       useCache: true,
       cacheKey: `product_${id}`,
     });
@@ -29,7 +30,7 @@ export const enhancedProductsApi = {
    * Create product with offline support
    */
   async createProduct(data: CreateProductRequest): Promise<Product> {
-    const response = await enhancedApiClient.post('/products/', data, {
+    const response = await enhancedApiClient.post(API_ENDPOINTS.PRODUCTS.CREATE, data, {
       useCache: false,
     });
     return response.data;
@@ -39,7 +40,7 @@ export const enhancedProductsApi = {
    * Update product with cache invalidation
    */
   async updateProduct(id: string, data: Partial<CreateProductRequest>): Promise<Product> {
-    const response = await enhancedApiClient.put(`/products/${id}/`, data, {
+    const response = await enhancedApiClient.put(API_ENDPOINTS.PRODUCTS.UPDATE(id), data, {
       useCache: false,
     });
     return response.data;
@@ -49,7 +50,7 @@ export const enhancedProductsApi = {
    * Delete product with cache invalidation
    */
   async deleteProduct(id: string): Promise<{ success: boolean }> {
-    const response = await enhancedApiClient.delete(`/products/${id}/`, {
+    const response = await enhancedApiClient.delete(API_ENDPOINTS.PRODUCTS.DELETE(id), {
       useCache: false,
     });
     return response.data;
@@ -59,7 +60,7 @@ export const enhancedProductsApi = {
    * Toggle favorite with cache invalidation
    */
   async toggleFavorite(productId: string): Promise<{ success: boolean }> {
-    const response = await enhancedApiClient.post(`/products/${productId}/favorite/`, undefined, {
+    const response = await enhancedApiClient.post(API_ENDPOINTS.PRODUCTS.FAVORITE(productId), undefined, {
       useCache: false,
     });
     return response.data;
@@ -69,7 +70,7 @@ export const enhancedProductsApi = {
    * Get trending products with caching
    */
   async getTrendingProducts(): Promise<Product[]> {
-    const response = await enhancedApiClient.get('/products/trending/', undefined, {
+    const response = await enhancedApiClient.get(API_ENDPOINTS.PRODUCTS.TRENDING, undefined, {
       useCache: true,
       cacheKey: 'trending_products',
       cacheTTL: 5 * 60 * 1000, // 5 minutes
@@ -81,7 +82,7 @@ export const enhancedProductsApi = {
    * Get recommended products with caching
    */
   async getRecommendedProducts(): Promise<Product[]> {
-    const response = await enhancedApiClient.get('/products/recommended/', undefined, {
+    const response = await enhancedApiClient.get(API_ENDPOINTS.PRODUCTS.RECOMMENDED, undefined, {
       useCache: true,
       cacheKey: 'recommended_products',
       cacheTTL: 10 * 60 * 1000, // 10 minutes
@@ -93,7 +94,7 @@ export const enhancedProductsApi = {
    * Get user's products with caching
    */
   async getMyProducts(): Promise<Product[]> {
-    const response = await enhancedApiClient.get('/products/', { seller: 'me' }, {
+    const response = await enhancedApiClient.get(API_ENDPOINTS.PRODUCTS.MY_PRODUCTS, undefined, {
       useCache: true,
       cacheKey: 'my_products',
       cacheTTL: 2 * 60 * 1000, // 2 minutes
@@ -105,7 +106,7 @@ export const enhancedProductsApi = {
    * Get category products with caching
    */
   async getCategoryProducts(categoryId: string): Promise<Product[]> {
-    const response = await enhancedApiClient.get(`/categories/${categoryId}/products/`, undefined, {
+    const response = await enhancedApiClient.get(API_ENDPOINTS.CATEGORIES.PRODUCTS(categoryId), undefined, {
       useCache: true,
       cacheKey: `category_products_${categoryId}`,
       cacheTTL: 15 * 60 * 1000, // 15 minutes
@@ -117,7 +118,7 @@ export const enhancedProductsApi = {
    * Search products with caching
    */
   async searchProducts(query: string, filters: ProductFilters = {}): Promise<{ results: Product[]; count: number }> {
-    const response = await enhancedApiClient.get('/search/', { q: query, ...filters }, {
+    const response = await enhancedApiClient.get(API_ENDPOINTS.SEARCH.PRODUCTS, { q: query, ...filters }, {
       useCache: true,
       cacheKey: `search_${query}_${JSON.stringify(filters)}`,
       cacheTTL: 5 * 60 * 1000, // 5 minutes
