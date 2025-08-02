@@ -1,13 +1,32 @@
 {
   "expo": {
-    "name": "Vidé-Grenier Kamer",
-    "slug": "vide-grenier-kamer",
+    "name": "Vidé-Grenier Kamer - Marketplace Camerounais",
+    "slug": "vide-grenier-kamer-marketplace",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/images/icon.png",
+    "icon": "./src/assets/logo.png",
     "userInterfaceStyle": "light",
+    "description": "Vidé-Grenier Kamer - La première marketplace en ligne du Cameroun. Achetez et vendez des produits d'occasion, neufs, et artisanaux. Trouvez des bonnes affaires dans votre région.",
+    "keywords": [
+      "marketplace",
+      "cameroon",
+      "cameroun",
+      "vide-grenier",
+      "second-hand",
+      "occasion",
+      "achat",
+      "vente",
+      "artisanat",
+      "local",
+      "africa",
+      "afrique",
+      "e-commerce",
+      "shopping",
+      "classifieds"
+    ],
+    "primaryColor": "#FF6B35",
     "splash": {
-      "image": "./src/assets/images/splash.png",
+      "image": "./src/assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#FF6B35"
     },
@@ -17,24 +36,76 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.videgrenier.kamer",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Cette application utilise votre localisation pour vous montrer les produits disponibles près de chez vous.",
+        "NSCameraUsageDescription": "Cette application utilise votre caméra pour prendre des photos de vos produits à vendre.",
+        "NSPhotoLibraryUsageDescription": "Cette application accède à votre galerie pour sélectionner des photos de vos produits."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/images/adaptive-icon.png",
+        "foregroundImage": "./src/assets/logo.png",
         "backgroundColor": "#FF6B35"
       },
       "package": "com.videgrenier.kamer",
-      "versionCode": 1
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
-      "favicon": "./src/assets/images/favicon.png"
+      "favicon": "./src/assets/logo.png",
+      "name": "Vidé-Grenier Kamer - Marketplace Camerounais",
+      "shortName": "Vidé-Grenier",
+      "description": "La première marketplace en ligne du Cameroun pour acheter et vendre des produits d'occasion et neufs.",
+      "lang": "fr",
+      "dir": "ltr",
+      "themeColor": "#FF6B35",
+      "backgroundColor": "#FFFFFF",
+      "display": "standalone",
+      "orientation": "portrait",
+      "scope": "/",
+      "startUrl": "/",
+      "categories": ["shopping", "business", "lifestyle"],
+      "screenshots": [
+        {
+          "src": "./src/assets/screenshots/home.png",
+          "sizes": "1280x720",
+          "type": "image/png",
+          "formFactor": "wide"
+        },
+        {
+          "src": "./src/assets/screenshots/product.png",
+          "sizes": "750x1334",
+          "type": "image/png",
+          "formFactor": "narrow"
+        }
+      ]
     },
     "extra": {
       "apiUrl": "http://192.168.1.100:8000/mobile/api",
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "vide-grenier-kamer-project"
       }
-    }
+    },
+    "owner": "vide-grenier-kamer",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/vide-grenier-kamer-project"
+    },
+    "plugins": [
+      "expo-notifications",
+      "expo-image-picker",
+      "expo-location"
+    ]
   }
 }
