@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ProductViewModel } from '../../viewModels/ProductViewModel';
+import { Analytics, EventType } from '@/services/analytics';
 
 interface Product {
   id: string;
@@ -107,6 +108,7 @@ const productSlice = createSlice({
 export const { setFilters, clearFilters, clearSelectedProduct } = productSlice.actions;
 export default productSlice.reducer;
 import { ProductViewModel } from '../../viewModels/ProductViewModel';
+import { Analytics, EventType } from '@/services/analytics';
 
 interface Product {
   id: string;

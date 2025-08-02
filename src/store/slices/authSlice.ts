@@ -1,7 +1,7 @@
-// ...existing code...
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authApi } from '@/services/api/auth';
 import secureStorage from '@/services/storage/secureStorage';
+import { Analytics, EventType } from '@/services/analytics';
 import { 
   LoginRequest, 
   RegisterRequest, 
@@ -43,6 +43,11 @@ export const login = createAsyncThunk(
       const response = await authApi.login(credentials);
       
       if (response.requires_2fa) {
+        await Analytics.trackEvent(EventType.USER_LOGIN, {
+          status: 'requires_2fa',
+          email: credentials.email
+        });
+        
         return { 
           requires2FA: true, 
           message: response.message,
@@ -55,10 +60,21 @@ export const login = createAsyncThunk(
         await secureStorage.setSecureItem('access_token', response.tokens.access_token);
         await secureStorage.setSecureItem('refresh_token', response.tokens.refresh_token);
         await secureStorage.setItem('user', response.user);
+
+        await Analytics.trackEvent(EventType.USER_LOGIN, {
+          status: 'success',
+          userId: response.user.id,
+          userType: response.user.user_type
+        });
+        Analytics.setUserId(response.user.id);
       }
 
       return response;
     } catch (error: any) {
+      await Analytics.trackEvent(EventType.USER_LOGIN, {
+        status: 'error',
+        error: error.response?.data?.error || 'Échec de la connexion'
+      });
       return rejectWithValue(
         error.response?.data?.error || 'Échec de la connexion'
       );
@@ -76,10 +92,21 @@ export const verify2FA = createAsyncThunk(
         await secureStorage.setSecureItem('access_token', response.tokens.access_token);
         await secureStorage.setSecureItem('refresh_token', response.tokens.refresh_token);
         await secureStorage.setItem('user', response.user);
+        
+        await Analytics.trackEvent(EventType.USER_LOGIN, {
+          status: 'success_2fa',
+          userId: response.user.id,
+          userType: response.user.user_type
+        });
+        Analytics.setUserId(response.user.id);
       }
 
       return response;
     } catch (error: any) {
+      await Analytics.trackEvent(EventType.USER_LOGIN, {
+        status: 'error_2fa',
+        error: error.response?.data?.error || 'Code de vérification invalide'
+      });
       return rejectWithValue(
         error.response?.data?.error || 'Code de vérification invalide'
       );
@@ -94,6 +121,11 @@ export const register = createAsyncThunk(
       const response = await authApi.register(userData);
       
       if (response.requires_phone_verification) {
+        await Analytics.trackEvent(EventType.USER_REGISTER, {
+          status: 'requires_phone_verification',
+          email: userData.email
+        });
+        
         return { 
           requiresPhoneVerification: true,
           tempUserId: response.user_id,
@@ -126,10 +158,21 @@ export const verifyPhone = createAsyncThunk(
         await secureStorage.setSecureItem('access_token', response.tokens.access_token);
         await secureStorage.setSecureItem('refresh_token', response.tokens.refresh_token);
         await secureStorage.setItem('user', response.user);
+
+        await Analytics.trackEvent(EventType.USER_REGISTER, {
+          status: 'success',
+          userId: response.user.id,
+          userType: response.user.user_type
+        });
+        Analytics.setUserId(response.user.id);
       }
 
       return response;
     } catch (error: any) {
+      await Analytics.trackEvent(EventType.USER_REGISTER, {
+        status: 'error_phone_verification',
+        error: error.response?.data?.error || 'Code de vérification invalide'
+      });
       return rejectWithValue(
         error.response?.data?.error || 'Code de vérification invalide'
       );
@@ -142,12 +185,20 @@ export const logout = createAsyncThunk(
   async () => {
     try {
       await authApi.logout();
+      await Analytics.trackEvent(EventType.USER_LOGOUT, {
+        status: 'success'
+      });
     } catch (error) {
+      await Analytics.trackEvent(EventType.USER_LOGOUT, {
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
       // Continue with logout even if API call fails
     }
     
     await secureStorage.multiRemove(['access_token', 'refresh_token']);
     await secureStorage.removeItem('user');
+    Analytics.setUserId(undefined);
   }
 );
 
@@ -161,6 +212,7 @@ export const loadStoredAuth = createAsyncThunk(
     ]);
 
     if (accessToken && refreshToken && user) {
+      Analytics.setUserId(user.id);
       return {
         tokens: {
           access_token: accessToken,

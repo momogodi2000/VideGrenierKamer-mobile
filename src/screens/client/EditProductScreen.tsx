@@ -1,4 +1,4 @@
-// src/screens/client/CreateProductScreen.tsx
+// src/screens/client/EditProductScreen.tsx
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -13,13 +13,13 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, fonts, fontSizes, spacing, borderRadius } from '@/theme';
 import { productsApi } from '@/services/api/products';
 import { categoriesApi } from '@/services/api/categories';
-import { Category } from '@/services/api/categories';
+import { Product, Category } from '@/services/api/products';
 
 interface FormData {
   title: string;
@@ -30,10 +30,14 @@ interface FormData {
   city: string;
   is_negotiable: boolean;
   images: any[];
+  existingImages: any[];
 }
 
-const CreateProductScreen: React.FC = () => {
+const EditProductScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const productId = route.params?.productId;
+
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -43,16 +47,40 @@ const CreateProductScreen: React.FC = () => {
     city: '',
     is_negotiable: false,
     images: [],
+    existingImages: [],
   });
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showConditionModal, setShowConditionModal] = useState(false);
 
   useEffect(() => {
+    loadProduct();
     loadCategories();
-  }, []);
+  }, [productId]);
+
+  const loadProduct = async () => {
+    try {
+      const product = await productsApi.getProduct(productId);
+      setFormData({
+        title: product.title,
+        description: product.description,
+        price: product.price.toString(),
+        condition: product.condition,
+        category: product.category.id,
+        city: product.city,
+        is_negotiable: product.is_negotiable,
+        images: [],
+        existingImages: product.images || [],
+      });
+    } catch (error) {
+      console.error('Error loading product:', error);
+      Alert.alert('Erreur', 'Impossible de charger le produit');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const loadCategories = async () => {
     try {
@@ -95,7 +123,7 @@ const CreateProductScreen: React.FC = () => {
         
         setFormData(prev => ({
           ...prev,
-          images: [...prev.images, ...newImages].slice(0, 5) // Max 5 images
+          images: [...prev.images, ...newImages].slice(0, 5 - prev.existingImages.length)
         }));
       }
     } catch (error) {
@@ -104,7 +132,14 @@ const CreateProductScreen: React.FC = () => {
     }
   };
 
-  const removeImage = (index: number) => {
+  const removeExistingImage = (imageId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      existingImages: prev.existingImages.filter(img => img.id !== imageId)
+    }));
+  };
+
+  const removeNewImage = (index: number) => {
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
@@ -136,7 +171,7 @@ const CreateProductScreen: React.FC = () => {
       Alert.alert('Erreur', 'Veuillez saisir la ville');
       return false;
     }
-    if (formData.images.length === 0) {
+    if (formData.existingImages.length + formData.images.length === 0) {
       Alert.alert('Erreur', 'Veuillez ajouter au moins une image');
       return false;
     }
@@ -159,36 +194,25 @@ const CreateProductScreen: React.FC = () => {
         images: formData.images,
       };
 
-      await productsApi.createProduct(productData);
+      await productsApi.updateProduct(productId, productData);
       
       Alert.alert(
         'Succès',
-        'Votre produit a été créé avec succès et est en attente de validation',
+        'Votre produit a été mis à jour avec succès',
         [
           {
             text: 'Voir mes produits',
             onPress: () => navigation.navigate('MyProducts')
           },
           {
-            text: 'Créer un autre',
-            onPress: () => {
-              setFormData({
-                title: '',
-                description: '',
-                price: '',
-                condition: '',
-                category: '',
-                city: '',
-                is_negotiable: false,
-                images: [],
-              });
-            }
+            text: 'Continuer',
+            style: 'cancel'
           }
         ]
       );
     } catch (error) {
-      console.error('Error creating product:', error);
-      Alert.alert('Erreur', 'Impossible de créer le produit');
+      console.error('Error updating product:', error);
+      Alert.alert('Erreur', 'Impossible de mettre à jour le produit');
     } finally {
       setIsSubmitting(false);
     }
@@ -202,9 +226,16 @@ const CreateProductScreen: React.FC = () => {
     { value: 'POOR', label: 'Mauvais état' },
   ];
 
-  const cities = [
-    'Douala', 'Yaoundé', 'Bamenda', 'Bafoussam', 'Kribi', 'Kribi', 'Garoua', 'Maroua', 'Bertoua', 'Ebolowa'
-  ];
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primaryOrange} />
+          <Text style={styles.loadingText}>Chargement du produit...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -213,7 +244,7 @@ const CreateProductScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Vendre un produit</Text>
+        <Text style={styles.headerTitle}>Modifier le produit</Text>
         <View style={styles.headerRight} />
       </View>
 
@@ -223,23 +254,38 @@ const CreateProductScreen: React.FC = () => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Photos du produit *</Text>
             <Text style={styles.sectionSubtitle}>
-              Ajoutez jusqu'à 5 photos de votre produit
+              {formData.existingImages.length + formData.images.length}/5 images
             </Text>
             
             <View style={styles.imageGrid}>
-              {formData.images.map((image, index) => (
-                <View key={index} style={styles.imageContainer}>
-                  <Image source={{ uri: image.uri }} style={styles.productImage} />
+              {/* Existing Images */}
+              {formData.existingImages.map((image, index) => (
+                <View key={image.id} style={styles.imageContainer}>
+                  <Image source={{ uri: image.image_url }} style={styles.productImage} />
                   <TouchableOpacity
                     style={styles.removeImageButton}
-                    onPress={() => removeImage(index)}
+                    onPress={() => removeExistingImage(image.id)}
                   >
                     <MaterialIcons name="close" size={20} color={colors.white} />
                   </TouchableOpacity>
                 </View>
               ))}
               
-              {formData.images.length < 5 && (
+              {/* New Images */}
+              {formData.images.map((image, index) => (
+                <View key={`new-${index}`} style={styles.imageContainer}>
+                  <Image source={{ uri: image.uri }} style={styles.productImage} />
+                  <TouchableOpacity
+                    style={styles.removeImageButton}
+                    onPress={() => removeNewImage(index)}
+                  >
+                    <MaterialIcons name="close" size={20} color={colors.white} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              
+              {/* Add Image Button */}
+              {formData.existingImages.length + formData.images.length < 5 && (
                 <TouchableOpacity style={styles.addImageButton} onPress={pickImage}>
                   <MaterialIcons name="add-a-photo" size={32} color={colors.primaryOrange} />
                   <Text style={styles.addImageText}>Ajouter</Text>
@@ -354,8 +400,8 @@ const CreateProductScreen: React.FC = () => {
             <ActivityIndicator size="small" color={colors.white} />
           ) : (
             <>
-              <MaterialIcons name="publish" size={20} color={colors.white} />
-              <Text style={styles.submitButtonText}>Publier le produit</Text>
+              <MaterialIcons name="save" size={20} color={colors.white} />
+              <Text style={styles.submitButtonText}>Mettre à jour le produit</Text>
             </>
           )}
         </TouchableOpacity>
@@ -442,6 +488,16 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     width: 24,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: spacing.md,
+    fontSize: fontSizes.md,
+    color: colors.textSecondary,
   },
   content: {
     padding: spacing.md,
@@ -622,4 +678,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateProductScreen;
+export default EditProductScreen; 
